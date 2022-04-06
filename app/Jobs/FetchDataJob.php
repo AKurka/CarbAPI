@@ -2,11 +2,15 @@
 
 namespace App\Jobs;
 
+use App\Models\Hours;
+use App\Models\Price;
+use App\Models\Station;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use ZipArchive;
 
 class FetchDataJob implements ShouldQueue
 {
@@ -18,37 +22,60 @@ class FetchDataJob implements ShouldQueue
 
     public function handle()
     {
-        $url = "https://donnees.roulez-eco.fr/opendata/instantane";
-        $zip_file = "folder/downloadfile.zip";
-
-        $zip_resource = fopen($zip_file, "w");
-
-        $ch_start = curl_init();
-        curl_setopt($ch_start, CURLOPT_URL, $url);
-        curl_setopt($ch_start, CURLOPT_FAILONERROR, true);
-        curl_setopt($ch_start, CURLOPT_HEADER, 0);
-        curl_setopt($ch_start, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch_start, CURLOPT_AUTOREFERER, true);
-        curl_setopt($ch_start, CURLOPT_BINARYTRANSFER,true);
-        curl_setopt($ch_start, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch_start, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch_start, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch_start, CURLOPT_FILE, $zip_resource);
-        $page = curl_exec($ch_start);
-        if(!$page)
-        {
-            echo "Error :- ".curl_error($ch_start);
-        }
-        curl_close($ch_start);
+        file_put_contents('tmp.zip', file_get_contents('https://donnees.roulez-eco.fr/opendata/instantane'));
 
         $zip = new ZipArchive;
-        $extractPath = "Download File Path";
-        if($zip->open($zip_file) != "true")
-        {
-            echo "Error :- Unable to open the Zip File";
-        }
 
-        $zip->extractTo($extractPath);
-        $zip->close();
+        $res = $zip->open('tmp.zip');
+
+        if ($res === TRUE) {
+            $xmlFile = $zip->getFromIndex(0);
+            $zip->close();
+            $xml = simplexml_load_string($xmlFile);
+            $json = json_encode($xml);
+            $array = json_decode($json, true);
+            foreach ($array['pdv'] as $item) {
+                $new_station = Station::updateOrCreate(['station_id' => $item['@attributes']['id']],
+                    [
+                        ['station_id' => $item['@attributes']['id']],
+                        ['latitude' => $item['@attributes']['latitude']],
+                        ['longitude' => $item['@attributes']['longitude']],
+                        ['pc' => $item['@attributes']['cp']],
+                        ['address' => $item['adresse']],
+                        ['city' => $item['ville']],
+                        ['services' => $item['services']['service']],
+                    ]
+                );
+
+                $new_hours = Hours::updateOrCreate(['id_station' => $new_station->id],
+                    [
+                        ['id_station' => $new_station->id],
+                        ['auto' => $item['horaires']['@attributes']['automate-24-24']],
+                        ['monday_open' => $item['horaires']['jour'][0]['horaire']['@attributes']['ouverture']],
+                        ['monday_close' => $item['horaires']['jour'][0]['horaire']['@attributes']['fermeture']],
+                        ['tuesday_open' => $item['horaires']['jour'][1]['horaire']['@attributes']['ouverture']],
+                        ['tuesday_close' => $item['horaires']['jour'][1]['horaire']['@attributes']['fermeture']],
+                        ['wednesday_open' => $item['horaires']['jour'][2]['horaire']['@attributes']['ouverture']],
+                        ['wednesday_close' => $item['horaires']['jour'][2]['horaire']['@attributes']['fermeture']],
+                        ['thursday_open' => $item['horaires']['jour'][3]['horaire']['@attributes']['ouverture']],
+                        ['thursday_close' => $item['horaires']['jour'][3]['horaire']['@attributes']['fermeture']],
+                        ['friday_open' => $item['horaires']['jour'][4]['horaire']['@attributes']['ouverture']],
+                        ['friday_close' => $item['horaires']['jour'][4]['horaire']['@attributes']['fermeture']],
+                        ['saturday_open' => $item['horaires']['jour'][5]['horaire']['@attributes']['ouverture']],
+                        ['saturday_close' => $item['horaires']['jour'][5]['horaire']['@attributes']['fermeture']],
+                        ['sunday_open' => $item['horaires']['jour'][6]['horaire']['@attributes']['ouverture']],
+                        ['sunday_close' => $item['horaires']['jour'][6]['horaire']['@attributes']['fermeture']]
+                    ]
+                );
+
+                $new_prices = Price::updateOrCreate(['id_station' => $new_station->id],
+                    [
+                        ['id_station' => $new_station->id],
+                    ]
+                );
+            }
+        } else {
+            logger('Erreur de zip');
+        }
     }
 }

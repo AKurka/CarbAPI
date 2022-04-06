@@ -13,7 +13,8 @@
         "laravel/sanctum": "^2.14.1",
         "laravel/tinker": "^2.7",
         "spatie/laravel-query-builder": "^5.0",
-      "ext-zip": "*"
+      "ext-zip": "*",
+        "ext-simplexml": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

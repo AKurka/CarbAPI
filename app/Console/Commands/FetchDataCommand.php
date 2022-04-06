@@ -5,11 +5,11 @@ namespace App\Console\Commands;
 use App\Jobs\FetchDataJob;
 use Illuminate\Console\Command;
 
-class testCommand extends Command
+class FetchDataCommand extends Command
 {
-    protected $signature = 'command:name';
+    protected $signature = 'data:fetch';
 
-    protected $description = 'Command description';
+    protected $description = 'Get data from external XML';
 
     public function handle()
     {
