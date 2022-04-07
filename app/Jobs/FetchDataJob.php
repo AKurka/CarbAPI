@@ -10,14 +10,16 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Imtigger\LaravelJobStatus\Trackable;
 use ZipArchive;
 
 class FetchDataJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Trackable;
 
     public function __construct()
     {
+        //$this->prepareStatus();
     }
 
     public function handle()
@@ -34,48 +36,49 @@ class FetchDataJob implements ShouldQueue
             $xml = simplexml_load_string($xmlFile);
             $json = json_encode($xml);
             $array = json_decode($json, true);
+            $i = 0;
+            //$this->setProgressMax(); Récupérer la taille du tableau
             foreach ($array['pdv'] as $item) {
                 $new_station = Station::updateOrCreate(['station_id' => $item['@attributes']['id']],
                     [
-                        ['station_id' => $item['@attributes']['id']],
-                        ['latitude' => $item['@attributes']['latitude']],
-                        ['longitude' => $item['@attributes']['longitude']],
-                        ['pc' => $item['@attributes']['cp']],
-                        ['address' => $item['adresse']],
-                        ['city' => $item['ville']],
-                        ['services' => $item['services']['service']],
+                        'station_id' => $item['@attributes']['id'],
+                        'latitude' => $item['@attributes']['latitude'],
+                        'longitude' => $item['@attributes']['longitude'],
+                        'pc' => $item['@attributes']['cp'],
+                        'address' => $item['adresse'],
+                        'city' => $item['ville'],
+                        'services' => $item['services']['service'] ?? null
                     ]
                 );
 
-                $new_hours = Hours::updateOrCreate(['id_station' => $new_station->id],
+                Hours::updateOrCreate(['id_station' => $new_station->id],
                     [
-                        ['id_station' => $new_station->id],
-                        ['auto' => $item['horaires']['@attributes']['automate-24-24']],
-                        ['monday_open' => $item['horaires']['jour'][0]['horaire']['@attributes']['ouverture']],
-                        ['monday_close' => $item['horaires']['jour'][0]['horaire']['@attributes']['fermeture']],
-                        ['tuesday_open' => $item['horaires']['jour'][1]['horaire']['@attributes']['ouverture']],
-                        ['tuesday_close' => $item['horaires']['jour'][1]['horaire']['@attributes']['fermeture']],
-                        ['wednesday_open' => $item['horaires']['jour'][2]['horaire']['@attributes']['ouverture']],
-                        ['wednesday_close' => $item['horaires']['jour'][2]['horaire']['@attributes']['fermeture']],
-                        ['thursday_open' => $item['horaires']['jour'][3]['horaire']['@attributes']['ouverture']],
-                        ['thursday_close' => $item['horaires']['jour'][3]['horaire']['@attributes']['fermeture']],
-                        ['friday_open' => $item['horaires']['jour'][4]['horaire']['@attributes']['ouverture']],
-                        ['friday_close' => $item['horaires']['jour'][4]['horaire']['@attributes']['fermeture']],
-                        ['saturday_open' => $item['horaires']['jour'][5]['horaire']['@attributes']['ouverture']],
-                        ['saturday_close' => $item['horaires']['jour'][5]['horaire']['@attributes']['fermeture']],
-                        ['sunday_open' => $item['horaires']['jour'][6]['horaire']['@attributes']['ouverture']],
-                        ['sunday_close' => $item['horaires']['jour'][6]['horaire']['@attributes']['fermeture']]
+                        'id_station' => $new_station->id,
+                        'auto' => $item['horaires']['@attributes']['automate-24-24'] ?? null,
+                        'monday_open' => $item['horaires']['jour'][0]['horaire']['@attributes']['ouverture'] ?? null,
+                        'monday_close' => $item['horaires']['jour'][0]['horaire']['@attributes']['fermeture'] ?? null,
+                        'tuesday_open' => $item['horaires']['jour'][1]['horaire']['@attributes']['ouverture'] ?? null,
+                        'tuesday_close' => $item['horaires']['jour'][1]['horaire']['@attributes']['fermeture'] ?? null,
+                        'wednesday_open' => $item['horaires']['jour'][2]['horaire']['@attributes']['ouverture'] ?? null,
+                        'wednesday_close' => $item['horaires']['jour'][2]['horaire']['@attributes']['fermeture'] ?? null,
+                        'thursday_open' => $item['horaires']['jour'][3]['horaire']['@attributes']['ouverture'] ?? null,
+                        'thursday_close' => $item['horaires']['jour'][3]['horaire']['@attributes']['fermeture'] ?? null,
+                        'friday_open' => $item['horaires']['jour'][4]['horaire']['@attributes']['ouverture'] ?? null,
+                        'friday_close' => $item['horaires']['jour'][4]['horaire']['@attributes']['fermeture'] ?? null,
+                        'saturday_open' => $item['horaires']['jour'][5]['horaire']['@attributes']['ouverture'] ?? null,
+                        'saturday_close' => $item['horaires']['jour'][5]['horaire']['@attributes']['fermeture'] ?? null,
+                        'sunday_open' => $item['horaires']['jour'][6]['horaire']['@attributes']['ouverture'] ?? null,
+                        'sunday_close' => $item['horaires']['jour'][6]['horaire']['@attributes']['fermeture'] ?? null
                     ]
                 );
 
-                $new_prices = Price::updateOrCreate(['id_station' => $new_station->id],
-                    [
-                        ['id_station' => $new_station->id],
-                    ]
-                );
+                //$this->setProgressNow($i);
+                $i++;
             }
         } else {
-            logger('Erreur de zip');
+            logger('Erreur de chargement du fichier .zip lors de la mise à jour des données');
         }
+
+        //$this->setOutput(['total' => taille du tableau 'other' => 'parameter']);
     }
 }
