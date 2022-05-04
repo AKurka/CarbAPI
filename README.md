@@ -13,6 +13,20 @@
 
 _TO-DO_
 
+## Documentation API
+
+### Récupérer les stations
+
+``` /api/stations```
+
+| **Paramètre** 	| **Type** 	| **Requis** 	| **Description**                                                  	|
+|---------------	|----------	|------------	|------------------------------------------------------------------	|
+| include       	| string   	| Non        	| Nom des modèles à inclure dans la réponse. (ex: hours, prices)   	|
+| lat           	| float    	| Oui        	| Latitude actuelle.                                               	|
+| lng           	| float    	| Oui        	| Longitude actuelle.                                              	|
+| filter[.....] 	| string   	| Non        	| Filtre à appliquer à la requête. (ex: max_distance, zipcode ...) 	|
+| sort          	| string   	| Non        	| Tri à appliquer à la recherche. (ex: distance)                   	|
+
 ## Contribuer
 
 _TO-DO_
