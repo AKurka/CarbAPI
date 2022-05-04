@@ -3,9 +3,12 @@
 namespace App\Models;
 
 
+use App\Models\Sorts\Station\DistanceSort;
 use Illuminate\Database\Eloquent\Model;
 use MatanYadaev\EloquentSpatial\Objects\Point;
 use MatanYadaev\EloquentSpatial\SpatialBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedSort;
 
 class Station extends Model
 {
@@ -26,6 +29,30 @@ class Station extends Model
     public function prices()
     {
         return $this->hasMany(Price::class, 'station_id', 'id');
+    }
+
+    public static function getFilters(): array
+    {
+        return [
+            AllowedFilter::exact('zipcode'),
+            AllowedFilter::scope('max_distance')
+        ];
+    }
+
+    public static function getIncludes(): array
+    {
+        return [
+            'hours',
+            'prices'
+        ];
+    }
+
+    public static function getSorts(): array
+    {
+        return [
+            'zipcode',
+            AllowedSort::custom('distance', new DistanceSort(), 'distance')
+        ];
     }
 
     public function scopeMaxDistance($query, float $distance)
