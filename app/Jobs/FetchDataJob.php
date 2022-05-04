@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Hours;
+use App\Models\Hour;
 use App\Models\Price;
 use App\Models\Station;
 use Illuminate\Bus\Queueable;
@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Imtigger\LaravelJobStatus\Trackable;
+use MatanYadaev\EloquentSpatial\Objects\Point;
 use ZipArchive;
 
 class FetchDataJob implements ShouldQueue
@@ -45,8 +46,7 @@ class FetchDataJob implements ShouldQueue
                 $new_station = Station::updateOrCreate(['station_id' => $item['@attributes']['id']],
                     [
                         'station_id' => $item['@attributes']['id'],
-                        'latitude' => $item['@attributes']['latitude'],
-                        'longitude' => $item['@attributes']['longitude'],
+                        'location' => new Point($item['@attributes']['latitude']/100000, $item['@attributes']['longitude']/100000) ,
                         'pc' => $item['@attributes']['cp'],
                         'address' => $item['adresse'],
                         'city' => $item['ville'],
@@ -54,9 +54,9 @@ class FetchDataJob implements ShouldQueue
                     ]
                 );
 
-                Hours::updateOrCreate(['id_station' => $new_station->id],
+                Hour::updateOrCreate(['station_id' => $new_station->id],
                     [
-                        'id_station' => $new_station->id,
+                        'station_id' => $new_station->id,
                         'auto' => $item['horaires']['@attributes']['automate-24-24'] ?? null,
                         'monday_open' => $item['horaires']['jour'][0]['horaire']['@attributes']['ouverture'] ?? null,
                         'monday_close' => $item['horaires']['jour'][0]['horaire']['@attributes']['fermeture'] ?? null,
@@ -80,10 +80,10 @@ class FetchDataJob implements ShouldQueue
                 if(array_key_exists('prix', $item)){
                     foreach ($item['prix'] as $price){
                         if(array_key_exists('@attributes', $price)){
-                        Price::updateOrCreate(['id_station' => $new_station->id, 'id_carb' => $price['@attributes']['id']],
+                        Price::updateOrCreate(['station_id' => $new_station->id, 'carb_id' => $price['@attributes']['id']],
                             [
-                                'id_station' => $new_station->id,
-                                'id_carb' => $price['@attributes']['id'] ?? null,
+                                'station_id' => $new_station->id,
+                                'carb_id' => $price['@attributes']['id'] ?? null,
                                 'price' => $price['@attributes']['valeur'] ?? null,
                                 'name' => $price['@attributes']['nom'] ?? null,
                             ]);

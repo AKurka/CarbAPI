@@ -2,23 +2,41 @@
 
 namespace App\Models;
 
-use Jenssegers\Mongodb\Eloquent\Model;
+
+use Illuminate\Database\Eloquent\Model;
+use MatanYadaev\EloquentSpatial\Objects\Point;
+use MatanYadaev\EloquentSpatial\SpatialBuilder;
 
 class Station extends Model
 {
-    protected $connection = 'mongodb';
-
     protected $guarded = [];
 
-    protected $hidden = ['_id', 'created_at', 'updated_at'];
+    protected $hidden = ['id', 'created_at', 'updated_at'];
 
-    public function hour()
+    protected $casts = [
+        'services' => 'array',
+        'location' => Point::class
+        ];
+
+    public function hours()
     {
-        return $this->hasOne(Hours::class, 'id_station', '_id');
+        return $this->hasOne(Hour::class, 'station_id', '_id');
     }
 
     public function prices()
     {
-        return $this->hasMany('App\Models\Price', 'id_station', '_id');
+        return $this->hasMany(Price::class, 'station_id', '_id');
+    }
+
+    public function scopeMaxDistance($query, float $distance)
+    {
+        $lat = request()->input('lat');
+        $lng = request()->input('lng');
+        return $query->whereDistanceSphere('location', new Point($lat, $lng), '<=', $distance);
+    }
+
+    public function newEloquentBuilder($query): SpatialBuilder
+    {
+        return new SpatialBuilder($query);
     }
 }

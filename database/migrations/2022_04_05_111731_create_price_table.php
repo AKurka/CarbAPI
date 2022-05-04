@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('prices', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('id_station')->references('id')->on('stations');
-            $table->integer('id_carb');
+            $table->foreignId('station_id')->references('id')->on('stations');
+            $table->unsignedInteger('carb_id');
             $table->decimal('price', 5,3);
             $table->timestamps();
         });

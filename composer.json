@@ -10,11 +10,11 @@
         "ext-zip": "*",
         "guzzlehttp/guzzle": "^7.2",
         "imtigger/laravel-job-status": "^1.2",
-        "jenssegers/mongodb": "^3.9",
         "laravel/framework": "^9.2",
         "laravel/horizon": "^5.9",
         "laravel/sanctum": "^2.14.1",
         "laravel/tinker": "^2.7",
+        "matanyadaev/laravel-eloquent-spatial": "^1.0",
         "spatie/laravel-query-builder": "^5.0"
     },
     "require-dev": {

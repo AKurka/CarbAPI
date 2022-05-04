@@ -15,22 +15,22 @@ return new class extends Migration
     {
         Schema::create('hours', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_station')->references('id')->on('stations');
-            $table->boolean('auto');
-            $table->string('monday_open');
-            $table->string('monday_close');
-            $table->string('tuesday_open');
-            $table->string('tuesday_close');
-            $table->string('wednesday_open');
-            $table->string('wednesday_close');
-            $table->string('thursday_open');
-            $table->string('thursday_close');
-            $table->string('friday_open');
-            $table->string('friday_close');
-            $table->string('saturday_open');
-            $table->string('saturday_close');
-            $table->string('sunday_open');
-            $table->string('sunday_close');
+            $table->foreignId('station_id')->references('id')->on('stations');
+            $table->boolean('auto')->nullable();
+            $table->string('monday_open')->nullable();
+            $table->string('monday_close')->nullable();
+            $table->string('tuesday_open')->nullable();
+            $table->string('tuesday_close')->nullable();
+            $table->string('wednesday_open')->nullable();
+            $table->string('wednesday_close')->nullable();
+            $table->string('thursday_open')->nullable();
+            $table->string('thursday_close')->nullable();
+            $table->string('friday_open')->nullable();
+            $table->string('friday_close')->nullable();
+            $table->string('saturday_open')->nullable();
+            $table->string('saturday_close')->nullable();
+            $table->string('sunday_open')->nullable();
+            $table->string('sunday_close')->nullable();
             $table->timestamps();
         });
     }

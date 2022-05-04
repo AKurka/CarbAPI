@@ -15,14 +15,13 @@ return new class extends Migration
     {
         Schema::create('stations', function (Blueprint $table) {
             $table->id();
-            $table->integer('station_id');
-            $table->decimal('latitude', 8 ,6);
-            $table->decimal('longitude', 8,6);
+            $table->unsignedBigInteger('station_id');
+            $table->point('location');
             $table->string('pc');
             $table->string('city');
             $table->string('address');
-            $table->string('pop');
-            $table->json('services');
+            $table->string('pop')->nullable();
+            $table->json('services')->nullable();
             $table->timestamps();
         });
     }

@@ -2,18 +2,16 @@
 
 namespace App\Models;
 
-use Jenssegers\Mongodb\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 
 class Price extends Model
 {
-    protected $connection = 'mongodb';
-
     protected $guarded = [];
 
-    protected $hidden = ['_id', 'created_at', 'updated_at', 'id_station'];
+    protected $hidden = ['id', 'created_at', 'updated_at', 'station_id'];
 
     public function station()
     {
-        return $this->belongsTo('App\Models\Station', '_id', 'id_station');
+        return $this->belongsTo(Station::class, '_id', 'station_id');
     }
 }
