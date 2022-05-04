@@ -11,7 +11,7 @@ class StationController extends Controller
     public function index(Request $request)
    {
        $stations = QueryBuilder::for(Station::class)
-           ->allowedIncludes(['hours'])
+           ->allowedIncludes(['hour', 'prices'])
            ->allowedSorts(['pc'])
            ->paginate($request->input('per_page', 15));
 

@@ -10,6 +10,8 @@ class Hours extends Model
 
     protected $guarded = [];
 
+    protected $hidden = ['_id', 'id_station', 'created_at', 'updated_at'];
+
     public function station()
     {
         return $this->belongsTo('App\Models\Station');

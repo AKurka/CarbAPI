@@ -10,13 +10,15 @@ class Station extends Model
 
     protected $guarded = [];
 
-    public function hours()
+    protected $hidden = ['_id', 'created_at', 'updated_at'];
+
+    public function hour()
     {
-        return $this->hasMany('App\Models\Hour', 'station_id', '_id');
+        return $this->hasOne(Hours::class, 'id_station', '_id');
     }
 
     public function prices()
     {
-        return $this->hasMany('App\Models\Price', 'station_id', '_id');
+        return $this->hasMany('App\Models\Price', 'id_station', '_id');
     }
 }

@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('price', function (Blueprint $table) {
+        Schema::create('prices', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->foreignId('id_station')->references('id')->on('stations');

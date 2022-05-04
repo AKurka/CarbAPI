@@ -36,6 +36,9 @@ class FetchDataJob implements ShouldQueue
             $xml = simplexml_load_string($xmlFile);
             $json = json_encode($xml);
             $array = json_decode($json, true);
+
+            logger($array);
+
             $i = 0;
             //$this->setProgressMax(); Récupérer la taille du tableau
             foreach ($array['pdv'] as $item) {
@@ -71,6 +74,23 @@ class FetchDataJob implements ShouldQueue
                         'sunday_close' => $item['horaires']['jour'][6]['horaire']['@attributes']['fermeture'] ?? null
                     ]
                 );
+
+
+
+                if(array_key_exists('prix', $item)){
+                    foreach ($item['prix'] as $price){
+                        if(array_key_exists('@attributes', $price)){
+                        Price::updateOrCreate(['id_station' => $new_station->id, 'id_carb' => $price['@attributes']['id']],
+                            [
+                                'id_station' => $new_station->id,
+                                'id_carb' => $price['@attributes']['id'] ?? null,
+                                'price' => $price['@attributes']['valeur'] ?? null,
+                                'name' => $price['@attributes']['nom'] ?? null,
+                            ]);
+                        };
+                    }
+                }
+
 
                 //$this->setProgressNow($i);
                 $i++;
