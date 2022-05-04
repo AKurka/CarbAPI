@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('station_id');
             $table->point('location');
-            $table->string('pc');
+            $table->string('zipcode');
             $table->string('city');
             $table->string('address');
             $table->string('pop')->nullable();

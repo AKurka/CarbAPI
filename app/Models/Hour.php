@@ -13,7 +13,7 @@ class Hour extends Model
 
     public function station()
     {
-        return $this->belongsTo('App\Models\Station');
+        return $this->belongsTo(Station::class, 'id', 'station_id');
     }
 
 }

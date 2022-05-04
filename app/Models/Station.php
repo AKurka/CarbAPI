@@ -20,12 +20,12 @@ class Station extends Model
 
     public function hours()
     {
-        return $this->hasOne(Hour::class, 'station_id', '_id');
+        return $this->hasOne(Hour::class, 'station_id', 'id');
     }
 
     public function prices()
     {
-        return $this->hasMany(Price::class, 'station_id', '_id');
+        return $this->hasMany(Price::class, 'station_id', 'id');
     }
 
     public function scopeMaxDistance($query, float $distance)

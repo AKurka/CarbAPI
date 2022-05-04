@@ -47,7 +47,7 @@ class FetchDataJob implements ShouldQueue
                     [
                         'station_id' => $item['@attributes']['id'],
                         'location' => new Point($item['@attributes']['latitude']/100000, $item['@attributes']['longitude']/100000) ,
-                        'pc' => $item['@attributes']['cp'],
+                        'zipcode' => $item['@attributes']['cp'],
                         'address' => $item['adresse'],
                         'city' => $item['ville'],
                         'services' => $item['services']['service'] ?? null

@@ -12,6 +12,6 @@ class Price extends Model
 
     public function station()
     {
-        return $this->belongsTo(Station::class, '_id', 'station_id');
+        return $this->belongsTo(Station::class, 'id', 'station_id');
     }
 }
